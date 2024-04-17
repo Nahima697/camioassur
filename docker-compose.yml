@@ -3,18 +3,18 @@ services:
   api:
     build: ./back-end
     container_name: backend
-    environment:
-      - MONGODB_URI=mongodb+srv://nahima697:cocorico@cluster0.c6rvfmj.mongodb.net
+    env_file:
+      - /back-end/.env
     ports:
       - '3000:3000'
     volumes:
-      - ./:/c/camioassur/back-end
-      - /c/camioassur/back-end/node_modules
+      - ./back-end:/backend
+      - /backend/node_modules
   frontend:
     build: ./front-end
     container_name: frontend
     ports:
       - '80:80'
     volumes:
-      - ./:/c/camioassur/front-end
-      - /c/camioassur/front-end/node_modules
+      - ./front-end:/frontend
+      - /frontend/node_modules
