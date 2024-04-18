@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-
+// import mongoose from "mongoose";
 @Schema()
 export class Truck {
     @Prop()
@@ -11,6 +11,7 @@ export class Truck {
 
     @Prop({required:true})
     registrationNumber:string;
+
 
 }
 

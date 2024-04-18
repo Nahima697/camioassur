@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsDateString, IsMongoId } from 'class-validator';
-import { CreateTruckDto } from 'src/trucks/dto/CreateTruckDto';
+import { IsNotEmpty,IsMongoId, IsDate } from 'class-validator';
+import { CreateBridgeDto } from 'src/bridge/CreateBridgeDto';
 import { CreateUserDto } from 'src/users/dto/CreateUser.dto';
 
 
@@ -7,12 +7,14 @@ export class CreateBookingDto {
   @IsNotEmpty()
   @IsMongoId() 
   user: CreateUserDto; 
-
   @IsNotEmpty()
   @IsMongoId() 
-  truck: CreateTruckDto; 
+  bridge: CreateBridgeDto; 
 
   @IsNotEmpty()
-  @IsDateString() 
-  date: string; 
+  @IsDate() 
+  startTime: Date; 
+  @IsNotEmpty()
+  @IsDate() 
+  endTime: Date; 
 }

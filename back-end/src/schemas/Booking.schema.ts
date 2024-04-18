@@ -6,8 +6,10 @@ export class Booking extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Truck' }) 
-  truck: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Bridge' }) 
+  bridge: string;
+
 
   @Prop({ required: true })
   startDate: Date; 

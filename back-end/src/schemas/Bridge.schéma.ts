@@ -6,12 +6,17 @@ import { OpeningHours } from "./OpeningHours.schema";
 export class Bridge {
     @Prop()
     _id: string;
+    
     @Prop({required:true, default:2})
     quantity: number;
 
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OpeningHours' }] })
     openingHours: OpeningHours[];
+
+    
+    @Prop({ default: true }) 
+    available: boolean;
  
 }
 
- export const BridgeShema = SchemaFactory.createForClass(Bridge);
+ export const BridgeSchema = SchemaFactory.createForClass(Bridge);

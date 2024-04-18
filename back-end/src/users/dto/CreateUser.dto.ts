@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEmail, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { CreateTruckDto } from "src/trucks/dto/CreateTruckDto";
 
 export class CreateUserDto {
     @IsNotEmpty()
@@ -12,4 +13,8 @@ export class CreateUserDto {
     @IsNumber()
     @IsOptional()
     phone?:number;
+     @IsNotEmpty()
+    @IsMongoId() 
+    truck: CreateTruckDto; 
+
 }

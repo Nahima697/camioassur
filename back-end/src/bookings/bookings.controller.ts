@@ -7,7 +7,7 @@ import { CreateBookingDto } from "./dto/CreateBooking.dto";
 export class BookingsController {
     constructor(private bookingsService:BookingService) {}
 
-    @Post('/reserve')
+    @Post()
     @UsePipes(new ValidationPipe())
 
     createBooking(@Body() createBookingDto:CreateBookingDto) {
