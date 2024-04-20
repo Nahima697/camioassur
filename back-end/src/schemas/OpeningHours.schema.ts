@@ -3,7 +3,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 
-@Schema()
+@Schema({ collection: 'OpeningHours' })
 export class OpeningHours {
   @Prop({ required: true })
   day: Date;

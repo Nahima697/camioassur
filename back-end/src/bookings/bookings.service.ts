@@ -1,22 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { User } from 'src/schemas/User.shema';
 import { Booking } from 'src/schemas/Booking.schema';
 import { CreateBookingDto } from './dto/CreateBooking.dto';
-import { CreateUserDto } from 'src/users/dto/CreateUser.dto';
 import { Bridge } from 'src/schemas/Bridge.schéma';
-import { CreateBridgeDto } from 'src/bridge/CreateBridgeDto';
 import { OpeningHoursService } from 'src/openingHours/openingHours.service';
+import { Truck } from 'src/schemas/Truck.schema';
+import { CreateUserDto } from 'src/users/dto/CreateUser.dto';
+import { CreateTruckDto } from 'src/trucks/dto/CreateTruckDto';
+import { Model } from 'mongoose';
+import { UpdateBridgeDto } from 'src/bridge/UpdateBridgeDto';
 
 @Injectable()
 export class BookingService {
+  private readonly logger = new Logger(BookingService.name);
+
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
     @InjectModel(Bridge.name) private readonly bridgeModel: Model<Bridge>,
+    @InjectModel(Truck.name) private readonly truckModel: Model<Truck>,
     private readonly openingHoursService: OpeningHoursService,
-
   ) {}
 
   async createBooking(createBookingDto: CreateBookingDto): Promise<any> {
@@ -24,40 +28,73 @@ export class BookingService {
     session.startTransaction();
     try {
       const user = await this.createUser(session, createBookingDto.user);
+      const truck = await this.createTruck(session, createBookingDto.truck);
       const isAvailable = this.openingHoursService.isAvailable(createBookingDto.startTime, createBookingDto.endTime);
       if (!isAvailable) {
         throw new Error('The selected time slot is not available.');
       }
-      const booking = await this.createBookingDocument(session, user._id, user.truck._id, createBookingDto);
-      await this.updateBridgeAvailability(createBookingDto.bridge);
+
+      const booking = await this.createBookingDocument(session, user, truck, createBookingDto);
+      this.logger.log(`Booking created: ${JSON.stringify(booking)}`);
+      const updateBridgeDto: UpdateBridgeDto = {
+        bookings: [booking],
+      };
+      
+      await this.updateBridgeAvailability(createBookingDto.bridgeId,updateBridgeDto);
+      this.logger.log(` ${updateBridgeDto.bookings}`);
+      
       await session.commitTransaction();
+      this.logger.log('Transaction committed successfully.');
+      
       return booking;
     } catch (error) {
       await session.abortTransaction();
+      this.logger.error(`Transaction aborted due to error: ${error.message}`);
       throw error;
     } finally {
       session.endSession();
+      this.logger.log('Session ended.');
     }
   }
 
   async createUser(session: any, createUserDto: CreateUserDto): Promise<User> {
     const user = new this.userModel(createUserDto);
-    return user.save({ session });
+    const savedUser = await user.save({ session });
+    this.logger.log(`User saved: ${JSON.stringify(savedUser)}`);
+    return savedUser;
   }
 
-  async createBookingDocument(session: any, userId: string, truckId: string, createBookingDto: CreateBookingDto): Promise<Booking> {
+  async createTruck(session: any, createTruckDto: CreateTruckDto): Promise<Truck> {
+    const truck = new this.truckModel(createTruckDto);
+    const savedTruck = await truck.save({ session });
+    this.logger.log(`Truck saved: ${JSON.stringify(savedTruck)}`);
+    return savedTruck;
+  }
+
+  async createBookingDocument(session: any, user: User, truck: Truck, createBookingDto: CreateBookingDto): Promise<Booking> {
     const booking = new this.bookingModel({
       ...createBookingDto,
-      user: userId,
-      truck: truckId,
-      startTime: createBookingDto.startTime, 
-      endEime: createBookingDto.endTime
+      user: user,
+      truck: truck,
+      
     });
+    this.logger.log(`Booking object created: ${JSON.stringify(booking)}`);
+   
     return booking.save({ session });
   }
+  
+
+  async updateBridgeAvailability(bridgeId: string, updateBridgeDto: UpdateBridgeDto): Promise<void> {
+    try {
+        await this.bridgeModel.findByIdAndUpdate(bridgeId, { bookings: updateBridgeDto.bookings }).exec();
+
+        this.logger.log(`Bridge availability updated for ID: ${bridgeId}`);
+    } catch (error) {
+        this.logger.error(`Error updating bridge availability: ${error.message}`);
+        throw error;
+    }
+}
 
 
-  async updateBridgeAvailability(bridge: CreateBridgeDto): Promise<void> {
-    await this.bridgeModel.updateOne({ _id: bridge }, { available: false }).exec();
-  }
+  
 }

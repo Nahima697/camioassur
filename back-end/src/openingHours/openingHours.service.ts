@@ -8,8 +8,8 @@ export class OpeningHoursService implements OpeningHoursTrait {
 
   constructor() {
     this.openingHours = new AvailabilitySchedule('2024-04-15T00:00:00Z', '2024-04-21T00:00:00Z');
-    this.openingHours.addWeeklyRecurringAvailability('2024-04-15T00:00:00Z', '2024-04-21T00:00:00Z', [1, 2, 3, 4, 5, 6]); // Lundi à samedi, 8h-12h
-    this.openingHours.addWeeklyRecurringAvailability('2024-04-21T00:00:00Z', '2024-04-21T00:00:00Z', [1, 2, 3, 4, 5, 6]); // Lundi à samedi, 13h-18h
+    this.openingHours.addWeeklyRecurringAvailability('2024-04-15T08:00:00Z', '2024-04-21T12:00:00Z', [1, 2, 3, 4, 5, 6]); // Lundi à samedi, 8h-12h
+    this.openingHours.addWeeklyRecurringAvailability('2024-04-21T13:00:00Z', '2024-04-21T18:00:00Z', [1, 2, 3, 4, 5, 6]); // Lundi à samedi, 13h-18h
   }
 
   getOpeningHours(): { start: Date, end: Date }[] {
@@ -18,6 +18,6 @@ export class OpeningHoursService implements OpeningHoursTrait {
   }
 
   isAvailable(startDate: Date, endDate: Date): boolean {
-    return this.openingHours.isAvailable(startDate.toISOString(), endDate.toISOString());
+    return this.openingHours.isAvailable(startDate, endDate);
   }
 }

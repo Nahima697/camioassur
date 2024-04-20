@@ -3,7 +3,7 @@ import { UsersServices } from "./users.service";
 import { CreateUserDto } from "./dto/CreateUser.dto";
 import mongoose from "mongoose";
 
-@Controller('users')
+@Controller('User')
 
 export class UsersController {
     constructor (private usersService:UsersServices) {}

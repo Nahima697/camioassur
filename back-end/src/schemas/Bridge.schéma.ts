@@ -1,22 +1,17 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose from 'mongoose';
-import { OpeningHours } from "./OpeningHours.schema";
+import mongoose from "mongoose";
+import { Booking } from "./Booking.schema"; 
 
-@Schema()
+@Schema({ collection: 'Bridge' })
 export class Bridge {
     @Prop()
     _id: string;
-    
-    @Prop({required:true, default:2})
-    quantity: number;
 
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OpeningHours' }] })
-    openingHours: OpeningHours[];
+    @Prop() 
+    reference: string;
 
-    
-    @Prop({ default: true }) 
-    available: boolean;
- 
+    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'bookings' }]) 
+    bookings: Booking[]; 
 }
 
- export const BridgeSchema = SchemaFactory.createForClass(Bridge);
+export const BridgeSchema = SchemaFactory.createForClass(Bridge);

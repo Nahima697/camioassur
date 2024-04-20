@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-// import mongoose from "mongoose";
-@Schema()
+
+@Schema({ collection: 'Truck' })
 export class Truck {
-    @Prop()
-    _id: string;
+    
     @Prop({required:true})
     model:string;
     @Prop({required:true})
@@ -15,4 +14,4 @@ export class Truck {
 
 }
 
- export const TruckShema = SchemaFactory.createForClass(Truck)
+ export const TruckSchema = SchemaFactory.createForClass(Truck)

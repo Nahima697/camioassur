@@ -5,9 +5,11 @@ import { BookingService } from "./bookings.service";
 import { BookingsController } from "./bookings.controller";
 import { Booking, BookingSchema } from "src/schemas/Booking.schema";
 import { User, UserSchema } from "src/schemas/User.shema";
-import { Bridge, BridgeSchema } from "src/schemas/Bridge.schéma";
 import { OpeningHoursService } from "src/openingHours/openingHours.service";
 import AvailabilitySchedule = require('availability-schedule');
+import { Truck, TruckSchema } from "src/schemas/Truck.schema";
+import { AvailabilityService } from "./Availability/availability.service";
+import { Bridge, BridgeSchema } from "src/schemas/Bridge.schéma";
 
 
 
@@ -17,11 +19,12 @@ import AvailabilitySchedule = require('availability-schedule');
             name: Booking.name,
             schema: BookingSchema,
         },
-        { name: Bridge.name, schema: BridgeSchema },
         { name: User.name, schema: UserSchema },
+        { name: Truck.name, schema: TruckSchema },
+        { name: Bridge.name, schema: BridgeSchema },
     ]),
     ],
-    providers : [BookingService,OpeningHoursService,AvailabilitySchedule],
+    providers : [BookingService,OpeningHoursService,AvailabilitySchedule,AvailabilityService],
     controllers : [ BookingsController]
 })
 
