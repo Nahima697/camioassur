@@ -1,6 +1,4 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose from "mongoose";
-import { Booking } from "./Booking.schema"; 
 
 @Schema({ collection: 'Bridge' })
 export class Bridge {
@@ -10,8 +8,9 @@ export class Bridge {
     @Prop() 
     reference: string;
 
-    @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'bookings' }]) 
-    bookings: Booking[]; 
+ 
+    @Prop({ type: [{ startDate: Date, endDate: Date }] })
+    appointments: { startDate: Date, endDate: Date }[];
 }
 
 export const BridgeSchema = SchemaFactory.createForClass(Bridge);

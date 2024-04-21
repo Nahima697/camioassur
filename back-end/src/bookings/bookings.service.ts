@@ -1,26 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schemas/User.shema';
+import { Model } from 'mongoose';
 import { Booking } from 'src/schemas/Booking.schema';
-import { CreateBookingDto } from './dto/CreateBooking.dto';
-import { Bridge } from 'src/schemas/Bridge.schéma';
-import { OpeningHoursService } from 'src/openingHours/openingHours.service';
+
 import { Truck } from 'src/schemas/Truck.schema';
 import { CreateUserDto } from 'src/users/dto/CreateUser.dto';
 import { CreateTruckDto } from 'src/trucks/dto/CreateTruckDto';
-import { Model } from 'mongoose';
+import { CreateBookingDto } from './dto/CreateBooking.dto';
+import { AvailabilityService } from 'src/availability/availability.service';
+
 import { UpdateBridgeDto } from 'src/bridge/UpdateBridgeDto';
+import { Bridge } from 'src/schemas/Bridge.schéma';
+import { User } from 'src/schemas/User.shema';
 
 @Injectable()
 export class BookingService {
   private readonly logger = new Logger(BookingService.name);
 
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
     @InjectModel(Bridge.name) private readonly bridgeModel: Model<Bridge>,
     @InjectModel(Truck.name) private readonly truckModel: Model<Truck>,
-    private readonly openingHoursService: OpeningHoursService,
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly openingHoursService: AvailabilityService,
   ) {}
 
   async createBooking(createBookingDto: CreateBookingDto): Promise<any> {
@@ -29,7 +31,11 @@ export class BookingService {
     try {
       const user = await this.createUser(session, createBookingDto.user);
       const truck = await this.createTruck(session, createBookingDto.truck);
-      const isAvailable = this.openingHoursService.isAvailable(createBookingDto.startTime, createBookingDto.endTime);
+      const isAvailable = await this.openingHoursService.isAvailable(
+        createBookingDto.bridgeId,
+        createBookingDto.startTime,
+        createBookingDto.endTime
+      );
       if (!isAvailable) {
         throw new Error('The selected time slot is not available.');
       }
@@ -37,15 +43,23 @@ export class BookingService {
       const booking = await this.createBookingDocument(session, user, truck, createBookingDto);
       this.logger.log(`Booking created: ${JSON.stringify(booking)}`);
       const updateBridgeDto: UpdateBridgeDto = {
-        bookings: [booking],
+        appointments: [
+          {
+            startDate: createBookingDto.startTime,
+            endDate: createBookingDto.endTime,
+          },
+        ],
       };
       
-      await this.updateBridgeAvailability(createBookingDto.bridgeId,updateBridgeDto);
-      this.logger.log(` ${updateBridgeDto.bookings}`);
+      console.log('updateBridgeDto:', updateBridgeDto); 
       
+      await this.updateBridgeAvailability(createBookingDto.bridgeId, updateBridgeDto);
+      
+      this.logger.log(`Bridge availability updated for bridge ID: ${createBookingDto.bridgeId}`);
+
       await session.commitTransaction();
       this.logger.log('Transaction committed successfully.');
-      
+
       return booking;
     } catch (error) {
       await session.abortTransaction();
@@ -76,25 +90,31 @@ export class BookingService {
       ...createBookingDto,
       user: user,
       truck: truck,
-      
     });
     this.logger.log(`Booking object created: ${JSON.stringify(booking)}`);
-   
     return booking.save({ session });
   }
-  
 
   async updateBridgeAvailability(bridgeId: string, updateBridgeDto: UpdateBridgeDto): Promise<void> {
     try {
-        await this.bridgeModel.findByIdAndUpdate(bridgeId, { bookings: updateBridgeDto.bookings }).exec();
-
-        this.logger.log(`Bridge availability updated for ID: ${bridgeId}`);
+      const updatedBridge = await this.bridgeModel.findByIdAndUpdate(
+        bridgeId,
+        { $push: { appointments: { $each: updateBridgeDto.appointments } } },
+        { new: true }
+      ).exec();
+  
+      if (!updatedBridge) {
+        throw new Error(`Bridge with ID ${bridgeId} not found`);
+      }
+  
+      this.logger.log(`Bridge availability updated for ID: ${bridgeId}`);
     } catch (error) {
-        this.logger.error(`Error updating bridge availability: ${error.message}`);
-        throw error;
+      this.logger.error(`Error updating bridge availability: ${error.message}`);
+      throw error;
     }
-}
-
-
+  }
+  
+  
+  
   
 }
