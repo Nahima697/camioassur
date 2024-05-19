@@ -1,0 +1,13 @@
+/* .calendar_default_event_inner {
+    background: #2ed642;
+    border: none;
+    border-radius: 5px;
+    font-size: 10pt;
+    padding: 5px;
+    opacity: 0.8;
+} */
+
+
+.calendar_default_cell_business .calendar_default_cell_inner{
+    background: rgb(99, 139, 153);
+}

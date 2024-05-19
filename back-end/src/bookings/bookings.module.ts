@@ -9,7 +9,7 @@ import { AvailabilityService } from "src/availability/availability.service";
 import AvailabilitySchedule = require('availability-schedule');
 import { Truck, TruckSchema } from "src/schemas/Truck.schema";
 
-import { Bridge, BridgeSchema } from "src/schemas/Bridge.schéma";
+import { Bridge, BridgeSchema } from "src/schemas/Bridge.schema";
 
 
 

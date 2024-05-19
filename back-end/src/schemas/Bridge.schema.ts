@@ -7,7 +7,6 @@ export class Bridge {
 
     @Prop() 
     reference: string;
-
  
     @Prop({ type: [{ startDate: Date, endDate: Date }] })
     appointments: { startDate: Date, endDate: Date }[];

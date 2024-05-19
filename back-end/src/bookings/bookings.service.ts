@@ -10,7 +10,7 @@ import { CreateBookingDto } from './dto/CreateBooking.dto';
 import { AvailabilityService } from 'src/availability/availability.service';
 
 import { UpdateBridgeDto } from 'src/bridge/UpdateBridgeDto';
-import { Bridge } from 'src/schemas/Bridge.schéma';
+import { Bridge } from 'src/schemas/Bridge.schema';
 import { User } from 'src/schemas/User.shema';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class BookingService {
     try {
       const user = await this.createUser(session, createBookingDto.user);
       const truck = await this.createTruck(session, createBookingDto.truck);
-      const isAvailable = await this.openingHoursService.isAvailable(
+      const isAvailable = await this.openingHoursService.isNotAvailable(
         createBookingDto.bridgeId,
         createBookingDto.startTime,
         createBookingDto.endTime
@@ -113,8 +113,6 @@ export class BookingService {
       throw error;
     }
   }
-  
-  
-  
+    
   
 }
