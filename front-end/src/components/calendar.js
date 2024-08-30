@@ -32,7 +32,7 @@ const Calendar = ({ data }) => {
             const start = new Date().toISOString();
             const end = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString();
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/calendar/available-slots?start=${start}&end=${end}`);
-            setIsSlotsAvailable(response.data); // Assurez-vous que la réponse de l'API est un boolean
+            setIsSlotsAvailable(response.data);
         } catch (error) {
             console.error('Erreur', error);
         }
