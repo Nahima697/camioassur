@@ -15,10 +15,8 @@ export class UpdateBridgeDto {
 }
 export class Appointment{
     @IsNotEmpty()
-    @Type(() => Date)
-    startDate: Date;
+    startDate: string;
   
     @IsNotEmpty()
-    @Type(() => Date)
-    endDate: Date;
+    endDate: string;
   }

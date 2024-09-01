@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 import './calendar.css';
-import axios from 'axios';
+import { getAvailableSlotsForAllBridges } from '../services/getAvailableSlot';
 
 const Calendar = ({ data }) => {
     const calendarRef = useRef();
@@ -31,21 +31,85 @@ const Calendar = ({ data }) => {
         try {
             const start = new Date().toISOString();
             const end = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString();
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/calendar/available-slots?start=${start}&end=${end}`);
-            setIsSlotsAvailable(response.data);
+            const response = await getAvailableSlotsForAllBridges(start, end);
+            if (response) {
+                setIsSlotsAvailable(response);
+            }
         } catch (error) {
-            console.error('Erreur', error);
+            console.error('Erreur lors de la récupération des créneaux disponibles:', error);
         }
     };
-
+    
     const handleEventClick = args => {
-        if (!args.e.data.disabled && isSlotsAvailable) {
-            navigate("/appointment");
+        if (args.e && (args.e.data.disabled || args.cell.properties.clickDisabled)) {
+            args.preventDefault(); 
+            return; 
         }
     };
-    const handleTimeRangeSelected = args => {
-        calendarRef.current.control.update({
-          startDate: args.day
+    
+    const handleTimeRangeSelected = async (args) => {
+        const dp = calendarRef.current.control;
+        // Vérifiez la présence des propriétés start et end dans args
+        if (!args || !args.start || !args.end) {
+            console.error('Arguments manquants ou invalides:', args);
+            return;
+        }
+    
+        const start = args.start;
+        const end = args.end;
+        const currentDate = new Date();
+    
+        if (start < currentDate) {
+            console.log(start);
+            alert("Cette plage horaire est antérieure à la date et l'heure actuelles.");
+            dp.clearSelection();
+            return;
+        }
+    
+        const startDate = start.toLocaleString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric' });
+        const endDate = end.toLocaleString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric' });
+    
+        const confirmBooking = window.confirm(`Voulez-vous prendre un rendez-vous ce jour ? De ${startDate} à ${endDate}`);
+        dp.clearSelection();
+    
+        if (confirmBooking) {
+            try {
+                const response = await getAvailableSlotsForAllBridges(start, end);
+    
+                if (!response || !response.slots || response.slots.length === 0) {
+                    alert('Aucun pont disponible pour la plage horaire sélectionnée.');
+                    return;
+                }
+     
+                const availableBridges = response.slots.filter(slot => slot.available);
+    
+                if (availableBridges.length === 0) {
+                    alert('Aucun pont disponible pour la plage horaire sélectionnée.');
+                    return;
+                }
+
+                const selectedBridgeId = availableBridges[0].bridgeId; 
+                dp.events.add({
+                    start: start,
+                    end: end,
+                    id: DayPilot.guid(),
+                    bridgeId: selectedBridgeId 
+                });
+    
+                navigate("/appointment", { state: { event: { start, end, bridgeId: selectedBridgeId } } }); 
+            } catch (error) {
+                console.error('Erreur lors de la récupération des créneaux disponibles:', error);
+                alert('Erreur lors de la récupération des créneaux disponibles.');
+            }
+        }
+    };
+    
+    
+    
+    const handleNavigatorTimeRangeSelected = args => {
+        const dp = calendarRef.current.control;
+        dp.update({
+            startDate: args.start
         });
     };
 
@@ -70,38 +134,22 @@ const Calendar = ({ data }) => {
                 args.data.backColor = "#ff0000"; 
             }
         },
-        onTimeRangeSelected: async args => {
-            const dp = calendarRef.current.control;
-            const start = args.start;
-            const end = args.end;
-            const currentDate = new Date();
-            if (start < currentDate) {
-                alert("Cette plage horaire est antérieure à la date et l'heure actuelles.");
-                dp.clearSelection();
-                return;
+        onBeforeCellRender: args => {
+            if (args.cell.start < DayPilot.Date.today()) {
+                args.cell.disabled = true;
+                args.cell.properties.clickDisabled = true;
+                args.cell.properties.backColor = "#dddddd";
             }
-            const startDate = start.toLocaleString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric' });
-            const endDate = end.toLocaleString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric' });
-            const modal = await DayPilot.Modal.prompt(`Voulez-vous prendre un rendez-vous ce jour ? De ${startDate} à ${endDate}`);
-            dp.clearSelection();
-            if (!modal.result) { return; }
-            dp.events.add({
-                start: start,
-                end: end,
-                id: DayPilot.guid(),
-            });
         },
+        onTimeRangeSelected: handleTimeRangeSelected,
     };
 
     return (
         <div className='container d-flex justify-center'>
-            <DayPilotNavigator onTimeRangeSelected={handleTimeRangeSelected}/>
-            <DayPilotCalendar {...config} ref={calendarRef} />
+            <DayPilotNavigator onTimeRangeSelected={handleNavigatorTimeRangeSelected} />
+            <DayPilotCalendar {...config} ref={calendarRef}   />
         </div>
     );
 };
 
 export default Calendar;
-
-
-

@@ -11,7 +11,6 @@ export class BookingsController {
     @UsePipes(new ValidationPipe())
 
     createBooking(@Body() createBookingDto:CreateBookingDto) {
-
         return this.bookingsService.createBooking(createBookingDto);
     }
 

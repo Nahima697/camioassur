@@ -1,22 +1,22 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from 'mongoose';
-import { Truck } from "./Truck.schema";
 
 @Schema({ collection: 'Booking' })
-export class Booking  {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'user' })
-  user: string;
+export class Booking {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'truck' })
-  truck: Truck;
-  @Prop({ required: true })
-  startTime: Date; 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Truck' })
+  truck: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true })
-  endTime: Date;
+  startTime: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'bridgeId' })
-  bridgeId: string;
+  @Prop({ required: true })
+  endTime: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Bridge' })
+  bridgeId: mongoose.Schema.Types.ObjectId;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

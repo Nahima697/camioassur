@@ -3,10 +3,10 @@ import {  IsNotEmpty, IsString } from "class-validator";
 export class CreateTruckDto {
     @IsNotEmpty()
     @IsString()
-    model:string;
+    brand:string;
     @IsNotEmpty()
     @IsString()
-    brand:string;
+    vehicleModel:string;
     @IsNotEmpty()
     @IsString()
     registrationNumber:string;

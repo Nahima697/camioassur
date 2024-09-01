@@ -11,11 +11,11 @@ export class CreateBookingDto {
 
   @IsNotEmpty()
   @IsDateString()
-  startTime: Date; 
+  startTime: string; 
 
   @IsNotEmpty()
   @IsDateString()
-  endTime: Date;
+  endTime: string;
 
   @IsNotEmpty() 
   @IsMongoId()

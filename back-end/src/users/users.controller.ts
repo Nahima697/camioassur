@@ -12,7 +12,6 @@ export class UsersController {
     @UsePipes(new ValidationPipe())
     createUser(@Body() createUserDto: CreateUserDto) {
         console.log(createUserDto)
-    
       return  this.usersService.createUser(createUserDto);
     }
      @Get()
@@ -20,8 +19,6 @@ export class UsersController {
         return this.usersService.getUsers();
      }
 
-
-// /user/id    
     @Get(':id')
      async getUserById(@Param('id')id:string) {
      const isValid = mongoose.Types.ObjectId.isValid(id);
