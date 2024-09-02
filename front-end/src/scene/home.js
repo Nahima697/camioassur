@@ -1,16 +1,14 @@
 
+import HeroImage from '../components/heroImage';
 import  Navbar  from '../components/navbar';
-import CalendarApi from '../services/calendarApi';
 import React from 'react';
-
 
 function Home() {
 
   return (
-    <div className="container">
+    <div className="container-fluid">
       <Navbar/>
-      <h1> Bienvenue chez CamionAssur</h1>
-      <CalendarApi  />
+      <HeroImage/>
     </div>
   );
 }
