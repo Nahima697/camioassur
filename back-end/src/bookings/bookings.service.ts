@@ -5,7 +5,7 @@ import { Booking } from 'src/schemas/Booking.schema';
 import { Truck } from 'src/schemas/Truck.schema';
 import { User } from 'src/schemas/User.shema';
 import { CreateUserDto } from 'src/users/dto/CreateUser.dto';
-import { CreateTruckDto } from 'src/trucks/dto/CreateTruckDto';
+import { CreateTruckDto } from 'src/trucks/dto/CreateTruckDto.dto';
 import { CreateBookingDto } from './dto/CreateBooking.dto';
 import { AvailabilityService } from 'src/availability/availability.service';
 import { UpdateBridgeDto } from 'src/bridge/UpdateBridgeDto';
@@ -23,18 +23,18 @@ export class BookingService {
     private readonly availabilityService: AvailabilityService,
   ) {}
 
-  async createBooking(createBookingDto: CreateBookingDto): Promise<Booking> {
+  async createBooking(createBookingDto: CreateBookingDto, createUserDto: CreateUserDto, createTruckDto:CreateTruckDto): Promise<Booking> {
     const session: ClientSession = await this.bookingModel.startSession();
     session.startTransaction();
     try {
       this.logger.log('Début de la transaction pour la création de réservation.');
 
       // 1. Créer et sauvegarder l'utilisateur
-      const user = await this.createUser(session, createBookingDto.user);
+      const user = await this.createUser(session, createUserDto);
       this.logger.log(`Utilisateur créé avec l'ID: ${user._id}`);
 
       // 2. Créer et sauvegarder le camion
-      const truck = await this.createTruck(session, createBookingDto.truck);
+      const truck = await this.createTruck(session, createTruckDto);
       this.logger.log(`Camion créé avec l'ID: ${truck._id}`);
 
       // 3. Vérifier la disponibilité du pont

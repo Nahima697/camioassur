@@ -1,13 +1,12 @@
 import { IsNotEmpty, IsDateString, IsMongoId } from 'class-validator';
-import { CreateTruckDto } from 'src/trucks/dto/CreateTruckDto';
-import { CreateUserDto } from 'src/users/dto/CreateUser.dto';
+
 
 export class CreateBookingDto {
   @IsNotEmpty()
-  user: CreateUserDto; 
+  user: string; 
 
   @IsNotEmpty()
-  truck: CreateTruckDto;
+  truck: string;
 
   @IsNotEmpty()
   @IsDateString()

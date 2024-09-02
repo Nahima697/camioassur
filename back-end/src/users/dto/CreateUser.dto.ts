@@ -1,16 +1,24 @@
-import { IsEmail,  IsNotEmpty,  IsString, Matches } from "class-validator";
+import { Expose } from "class-transformer";
+import { IsEmail,  IsNotEmpty,  IsString } from "class-validator";
 
 
 export class CreateUserDto {
 
+    
+    @Expose()
     @IsNotEmpty()
     @IsString()
-    lastName:string;
+    lastName:string; 
+
+    @Expose()
     @IsNotEmpty()
     @IsString()
     firstName:string;
+
+    @Expose()
     @IsEmail()
     email:string;
-    @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phone must be a valid phone number' })
+
+    @Expose()
     phone: string;
 }
