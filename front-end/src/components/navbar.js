@@ -13,7 +13,7 @@ function Navbar() {
           <div className="navbar-nav ">
             <NavLink className="nav-link"  to="/home">Home</NavLink>
             <NavLink className="nav-link"  to="/rendezVous">Prendre rendez-vous</NavLink>
-            <NavLink className="nav-link"  to="/en-savoir-plus">En savoir plus</NavLink>
+            <NavLink className="nav-link"  to="/enSavoirPlus">En savoir plus</NavLink>
           </div>
         </div>
       </div>
